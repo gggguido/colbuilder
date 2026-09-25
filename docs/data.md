@@ -56,13 +56,17 @@ data/
     │   └── small_molecule_martini3.ff
     └── martini300C-mapping/
         ├── ace.amber99.map
+        ├── ags.amber99.map
         ├── ...
         ├── hyp.amber99.map
         ├── l4y.amber99.map
         ├── l5y.amber99.map
+        ├── lgx.amber99.map
         ├── ly2.amber99.map
         ├── ly3.amber99.map
         ├── lyx.amber99.map
+        ├── lzd.amber99.map
+        ├── lzs.amber99.map
         ├── nme.amber99.map
         └── modifications.amber99.mapping
 ```
@@ -129,7 +133,8 @@ Martini 3.0 coarse-grained force field files:
 Mapping files for converting atomistic to coarse-grained representations:
 
 - Mapping files for standard amino acids (e.g., `ala.amber99.map`, `gly.amber99.map`)
-- Mapping files for crosslink residues (`l4y.amber99.map`, `l5y.amber99.map`, `ly2.amber99.map`, `ly3.amber99.map`, `lyx.amber99.map`) — these cover HLKNL and PYD only. MOLD and the non-enzymatic AGE crosslinks (Glucosepane, Pentosidine) have no Martini3 mapping yet, so they can't currently be coarse-grained; use `force_field: "amber99"` for those.
+- Mapping files for HLKNL and PYD (`l4y.amber99.map`, `l5y.amber99.map`, `ly2.amber99.map`, `ly3.amber99.map`, `lyx.amber99.map`).
+- This local fork also includes Glucosepane mappings (`lgx.amber99.map`, `ags.amber99.map`) for G21-fib R2M and MOLD mappings (`lzs.amber99.map`, `lzd.amber99.map`). Their residue parameters are in `martini300C-ff/aminoacids.ff`; inter-marker bonded terms are completed in `core/topology/crosslink.py`. See the [local model status and validation limits](user_guide.md#using-different-force-fields). Pentosidine has no Martini3 mapping here; use `force_field: "amber99"` for that crosslink.
 - Mapping files for terminal caps (`ace.amber99.map`, `nme.amber99.map`, `cla.amber99.map`)
 - `modifications.amber99.mapping`: Definition of mapping for all modifications
 

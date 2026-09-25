@@ -58,7 +58,7 @@ print(config.sequence_generator)  # Output: True
 config.validate_paths()
 
 # Update configuration dynamically
-config.update({"debug": True, "fibril_length": 300})
+config = config.model_copy(update={"debug": True, "fibril_length": 300})
 print(config.debug)  # Output: True
 print(config.fibril_length)  # Output: 300
 

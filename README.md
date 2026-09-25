@@ -233,7 +233,10 @@ These form spontaneously rather than through enzyme activity, and can be used as
 - **Glucosepane** - Divalent, LYS-ARG derived; most abundant advanced glycation end-product (AGE) in human tissue
 - **Pentosidine** - Divalent, LYS-ARG derived; well-characterized AGE crosslink
 
-**Note**: Martini3 crosslink parametrization currently only covers PYD and HLKNL. Other types require `force_field: "amber99"`.
+**Note**: This local fork includes Martini3 models for PYD, HLKNL, Glucosepane
+(`LGX`/`AGS`, G21-fib R2M) and MOLD (`LZS`/`LZD`). Other types, including
+Pentosidine, require `force_field: "amber99"`. See the
+[local model status and validation limits](docs/user_guide.md#using-different-force-fields).
 
 ### Crosslink Combinations
 

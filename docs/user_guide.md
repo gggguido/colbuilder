@@ -300,9 +300,9 @@ test its mechanical contribution). Each entry has the form
 
 There's also `auto_fix_unpaired` (default `false`): if enabled, ColBuilder automatically finds
 crosslink markers left without a geometric partner (which would otherwise produce an
-incomplete, non-physical crosslink) and converts them to standard residues. It defers to any
-replacement mechanism you've already configured (`ratio_replace`, `replace_file`, or
-`manual_replacements`) rather than overriding it. In this local version,
+incomplete, non-physical crosslink) and converts them to standard residues. In the default
+`random` mode, it defers to a positive `ratio_replace`, `replace_file`, or
+`manual_replacements` rather than overriding that request. In this local version,
 `preserve_attachment` keeps automatic orphan cleanup as a separate first step,
 then applies the requested ratio without converting cleanup into a manual override.
 
@@ -543,10 +543,18 @@ topology_generator: true
 force_field: "martini3"     # For coarse-grained simulations
 ```
 
-Martini3 crosslink parametrization currently only covers PYD and HLKNL; other
-crosslink types (DPD, PYL, DPL, MOLD, and the non-enzymatic AGE types) aren't
-yet parametrized for Martini3 and won't produce correct coarse-grained bonded
-terms — use `force_field: "amber99"` for those.
+This local fork includes Martini3 models for PYD, HLKNL, Glucosepane
+(`LGX`/`AGS`, **G21-fib R2M**) and MOLD (`LZS`/`LZD`), with mappings, residue
+parameters and inter-marker bonded terms. Other crosslink types, including
+DPD, PYL, DPL and Pentosidine, still require `force_field: "amber99"`.
+The local Glucosepane and MOLD topology regression tests check their bonded
+terms and rejection of incomplete marker pairs; this does not establish
+equilibrated MD stability or parameter transferability to every system.
+
+The upstream `main` update changes the Martini PYD equilibrium angles:
+`al2yx_1/2/3` are now 60/100/100 degrees and `al3yx_2` is 140 degrees.
+These PYD changes are separate from the local Glucosepane G21-fib R2M and
+MOLD parameters, which remain unchanged by this integration.
 
 ## Troubleshooting
 
