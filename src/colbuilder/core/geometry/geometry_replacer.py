@@ -8,22 +8,14 @@ including manual replacement lists and ratio-based automated selection.
 
 import os
 import random
-import time
 import math
 import json
 import traceback
 import subprocess
 import shutil
-import numpy as np
 from pathlib import Path
-from typing import Optional, Dict, Any, List, Union, Tuple, cast, Set
-from colorama import init, Fore, Style
-
-# Import safe_load from yaml to parse raw config files
-try:
-    import yaml
-except ImportError:
-    yaml = None
+from typing import Optional, Dict, Any, List, Tuple, Set
+from colorama import Fore, Style
 
 from ..utils.exceptions import GeometryGenerationError
 from ..utils.logger import setup_logger
@@ -795,10 +787,6 @@ class CrosslinkReplacer:
                         if line.strip() and not line.startswith("#")
                     ]
 
-            # Check config dict for manual_replacements
-            if not manual_list and hasattr(config, "__dict__"):
-                manual_list = config.__dict__.get("manual_replacements") or []
-
             # No replacements to make
             if not manual_list:
                 LOG.warning(
@@ -1219,7 +1207,6 @@ class CrosslinkReplacer:
         num_single_to_replace = _ratio_target(len(singles), ratio_replace)
 
         # Randomly select items to replace
-        random.seed(int(time.time()))
         random.shuffle(pairs)
         selected_pairs = pairs[:num_pair_to_replace] if num_pair_to_replace else []
         random.shuffle(pyd_trios)
@@ -1665,8 +1652,6 @@ class CrosslinkReplacer:
         if not eligible_entities:
             return []
 
-        random.seed(int(time.time()))
-
         selected_entities: List[Tuple[str, List[Dict[str, Any]]]] = []
         if scope == "all":
             buckets = {
@@ -1838,13 +1823,16 @@ class CrosslinkReplacer:
                 if (s.get("resid", ""), s.get("chain", ""), s.get("model_id", 0.0)) not in trio_members
             ]
 
-        # Fallback: if we found no valid pairs or trios but still have candidates, treat them as singles
+        # Fallback: if we found no valid pairs or trios but still have candidates, treat
+        # them as singles. Still exclude PAIRED_RESIDUES: those markers must only ever
+        # be replaced together with their bonded partner, so falling back to the raw
+        # (unfiltered) candidate list here would let this pick just one side of a
+        # divalent crosslink, leaving its partner as an unconverted marker residue.
         if not pairs and not pyd_trios and filtered:
-            singles = filtered.copy()
+            singles = [r for r in filtered if r["resname"] not in PAIRED_RESIDUES]
 
         num_single_to_replace = _ratio_target(len(singles), ratio_replace)
 
-        random.seed(int(time.time()))
         random.shuffle(pairs)
         random.shuffle(singles)
         random.shuffle(pyd_trios)

@@ -2,7 +2,6 @@
 # Distributed under the terms of the Apache License 2.0
 
 import numpy as np
-from sklearn.metrics import pairwise_distances as pdist
 from typing import List, Dict, Any, Optional, Tuple, Union
 import os
 

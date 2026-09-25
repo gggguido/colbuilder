@@ -316,9 +316,9 @@ class Itp:
                             self.dihedrals[cnt_con].append(tokens)
 
             # Atom-count offset: derive the connection's last atom index
-            # from the parsed atoms section, so merge offsets stay correct even if
-            # martinize2 emitted no [ position_restraints ] block. Equivalent to the
-            # posres-derived value when posres is present.
+            # from the parsed atoms section directly, so merge offsets stay
+            # correct regardless of whether martinize2 emitted a
+            # [ position_restraints ] block.
             if cnt_con is not None and self.atoms[cnt_con]:
                 self.mol_ends[cnt_con] = [int(self.atoms[cnt_con][-1][0])]
 
