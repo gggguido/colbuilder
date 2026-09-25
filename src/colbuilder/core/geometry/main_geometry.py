@@ -397,7 +397,11 @@ class GeometryService:
                         finder = UnpairedCrosslinkFinder(base_dir=working_dir_root)
                         auto_manual_replacements, auto_manual_file = finder.run()
                         if auto_manual_replacements:
-                            temp_config.manual_replacements = auto_manual_replacements
+                            if getattr(temp_config, "ratio_replace_mode", "random") == "preserve_attachment":
+                                # Cleanup is not a user override of the subsequent ratio selection.
+                                temp_config._auto_unpaired_replacements = auto_manual_replacements
+                            else:
+                                temp_config.manual_replacements = auto_manual_replacements
                             temp_config.replace_bool = True
                             temp_config.auto_fix_unpaired = True
 
@@ -856,4 +860,3 @@ def _is_pdb_file(file_path: str) -> bool:
             return first_line.startswith(("ATOM", "CRYST1", "HETATM"))
     except Exception:
         return False
-    

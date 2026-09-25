@@ -286,8 +286,9 @@ class Martini:
         Decide martinize2 -nter/-cter flags robustly.
         1) Rename terminal ALA -> CLA in the PDB *before* flag decisions.
         2) If any chain starts/ends on a special block, use 'none' for that side.
-        Special blocks include ACE/CLA and crosslink blocks (LY2/LY3/L4Y/L5Y/LYX),
-        and also NME (since it's already an explicit cap).
+        Special blocks include ACE/CLA and crosslink blocks
+        (LY2/LY3/L4Y/L5Y/LYX/AGS/LGX/LZS/LZD), and also NME (since it is
+        already an explicit cap).
         """
         if not pdb:
             LOG.warning("Empty PDB provided to cap_pdb")
@@ -329,8 +330,14 @@ class Martini:
 
             # Residues meaning "this terminus is already capped / is a crosslink
             # block", so martinize2 must NOT add another terminal modification.
-            special_first = {"ACE", "CLA", "LY2", "LY3", "L4Y", "L5Y", "LYX"}
-            special_last  = {"ACE", "CLA", "LY2", "LY3", "L4Y", "L5Y", "LYX", "NME"}
+            special_first = {
+                "ACE", "CLA", "LY2", "LY3", "L4Y", "L5Y", "LYX", "AGS", "LGX",
+                "LZS", "LZD"
+            }
+            special_last = {
+                "ACE", "CLA", "LY2", "LY3", "L4Y", "L5Y", "LYX", "AGS", "LGX",
+                "LZS", "LZD", "NME"
+            }
 
             # N-terminus: the geometry stage (caps.py) pre-caps every chain with an
             # ACE residue, so the first residue is normally ACE and needs no -nter

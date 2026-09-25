@@ -273,12 +273,26 @@ files_mix:                  # Required if mix_bool is true
 replace_bool: false         # Enable replacement of crosslinks with lysines
 ratio_replace: 30           # Percentage of crosslinks to replace
 ratio_replace_scope: "enzymatic"  # Crosslinks to replace: "enzymatic" (default), "non_enzymatic" (AGEs), or "all"
+ratio_replace_mode: "random"     # Or "preserve_attachment" to avoid newly unlinked models
+ratio_replace_seed: null         # Optional integer seed
 replace_file: null          # File with crosslinks to be replaced
 ```
+
+For joint N/C selection that retains at least one crosslink on every initially
+linked model, use `ratio_replace_mode: preserve_attachment`. This optional
+mode rejects infeasible quotas and validates the actual final AMBER ITP bonds;
+it does not certify pulling stability. See
+[Attachment-preserving replacement](attachment_preserving_replacement.md).
 
 The `ratio_replace_scope` parameter controls which crosslinks are eligible for ratio-based
 replacement. The default `enzymatic` targets enzymatic crosslinks (HLKNL/PYD-derived residues);
 use `non_enzymatic` to target AGE crosslinks (Glucosepane, Pentosidine, MOLD), or `all` for both.
+
+Replacement automatically preserves the original backbone coordinates and polymer
+boundaries through Chimera. AMBER generation rejects missing peptide bonds rather
+than exporting an incomplete system. No additional YAML setting is required; see
+[Backbone preservation](backbone_preservation.md) for safeguards, tests and how to
+regenerate outputs produced before this fix.
 
 ### Topology Options
 
@@ -354,7 +368,12 @@ ColBuilder supports various crosslink types found in collagen:
 - **deHHLNL**: Dehydro-hydroxylysino-norleucine (divalent)
 - **deHLNL**: Dehydro-lysino-norleucine (divalent)
 - **NOCROSS**: No crosslinking
-- **Glucosepane**: Advanced glycation end-product crosslink (specific species)
+- **Glucosepane**: Advanced glycation end-product crosslink (specific species). In the Martini 3
+  topology the glucosepane is described by the two marker residues `LGX` (lysine side) and `AGS`
+  (arginine side) of `martini300C-ff/aminoacids.ff`, model **G21-fib R2M** (2026-09-15): bonded
+  parameters refitted on the ten glucosepane cross-links of an all-atom collagen fibril, one massive
+  ring bead R2 (`AGS:SC6`) and a single virtual site R5 (`AGS:SC3`). The superseded G21 lines are
+  kept as comments in the force-field file and in `core/topology/crosslink.py`.
 
 Each crosslink type can be positioned in a few combination of selected Lysine residues, depending on the species being modeled. All available crosslinks and respective combinations for each species are listed at [src/colbuilder/data/sequence/crosslinks.csv](https://github.com/graeter-group/colbuilder/blob/main/src/colbuilder/data/sequence/crosslinks.csv)
 
@@ -384,6 +403,7 @@ To create a heterogeneous microfibril with different crosslink types:
 
 ```yaml
 mix_bool: true
+mix_strategy: whole_models  # Default; choose a complete A/B model component
 ratio_mix: "D:70 T:30"      # 70% type D, 30% type T
 files_mix:
  - "human-D.pdb"            # triple helix PDB with type D crosslinks
@@ -391,6 +411,27 @@ files_mix:
 ```
 
 This feature allows modeling of collagen structures with a mixture of crosslink types.
+
+For alternative crosslinks at shared loci, with additional crosslinks present
+in only one template, use the separate `shared_sites` strategy:
+
+```yaml
+mix_bool: true
+mix_strategy: shared_sites
+ratio_mix: "A:50 B:50"
+files_mix:
+  - PYD.pdb
+  - MOLD_plus_GCP.pdb
+mix_alignment_tolerance: 0.25  # Angstrom; maximum rigid-transfer backbone residual
+```
+
+This mixes PYD/MOLD at corresponding residue positions, counting complete
+crosslinks separately for each positional family (e.g. N and C). It retains
+all complete additional GCP sites, including those whose models select PYD.
+It does not apply the ratio to additional sites or to the number of marker atoms.
+Only two compatible templates are currently supported. See
+[Shared-Site Mixing](shared_site_mixing.md) for geometry requirements, validation,
+rounding, and the generated `crosslink_mix_report.json` audit.
 
 ### Replacing Crosslinks
 
